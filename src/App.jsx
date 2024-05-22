@@ -1,51 +1,62 @@
 import './App.css';
 import React, { useState, useEffect } from 'react';
-import frases from './frases';
-import CardProfissoes from './CardProfissoes';
+import badPeople from './data/badPeople';
+import coupleQuestions from './data/coupleQuestions';
+import Card from './components/Card/Card';
 
-export default (props) => {
+const initialQuestion = "Clique no botão para sortear uma carta.";
 
-  const [dados, setDados] = useState("NULL");
-  const [searchTerm, setSearchTerm] = useState(0);
+const gameOptions = [
+  {
+    id: 1,
+    name: 'AMIGOS DE MERDA',
+    value: "badPeople",
+  },
+  {
+    id: 2,
+    name: 'PERGUNTAS DE CASAL',
+    value: "coupleQuestions",
+  },
+];
 
-  function filterByID(obj) {
-    if (obj.id === searchTerm) {
-      return true;
-    } else {
-      return false;
-    }
+const games = {
+  "badPeople": badPeople,
+  "coupleQuestions": coupleQuestions,
+};
+
+const App = () => {
+  const [game, setGame] = useState(badPeople);
+  const [question, setQuestion] = useState(initialQuestion);
+
+  const selectRandomQuestion = () => {
+    const maxQuestions = game.length;
+    const randomIndex = Math.floor(Math.random() * maxQuestions);
+    const randomQuestion = game[randomIndex];
+    setQuestion(randomQuestion);
   }
 
-  const randNumber = async () => {
-    const min = Math.ceil(1);
-    const max = Math.floor(154);
-    const number = Math.floor(Math.random() * (max - min)) + min;
-    setSearchTerm(number);
-    console.log(searchTerm)
-  };
-
-  useEffect(async () => {
-
-    var arrByID = frases.filter(filterByID);
-    console.log(arrByID)
-
-    const mapping = arrByID.map((frase) => (
-      <CardProfissoes
-          nome='AMIGOS DE MERDA'
-          descricao={frase.quest}
-      />
-  ));
-
-    setDados(mapping)
-
-},[searchTerm]);
+  const handleGameChange = (event) => {
+    setQuestion(initialQuestion);
+    setGame(games[event.target.value]);
+  }
 
   return (
     <div className='app'>
       <div className='appCard'>
-        {dados}
+
+        <select className='select' onChange={(e) => handleGameChange(e)}>
+          {gameOptions.map((option) => (
+            <option key={option.id} value={option.value}>
+              {option.name}
+            </option>
+          ))}
+        </select>
+
+        <Card nome='AMIGOS DE MERDA' descricao={question} />
       </div>
-      <button className='butao' onClick={randNumber}> SORTEAR CARTA </button>
+      <button className='butao' onClick={selectRandomQuestion}> SORTEAR CARTA </button>
     </div>
   );
-}
+};
+
+export default App;
